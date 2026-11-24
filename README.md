@@ -68,14 +68,14 @@ node --env-file=.env server.mjs
 
 ### TestFlight 配置
 
-详见 [TESTFLIGHT.md](TESTFLIGHT.md)。包含可选每 60 天构建配置，默认关闭。90 天是每个 beta 构建期限，**不是永久安装**。
+详见 [TESTFLIGHT.md](TESTFLIGHT.md)。包含可选每两个月构建配置，默认关闭。90 天是每个 beta 构建期限，**不是永久安装**。
 
 ## 手机端 ChatGPT
 
 支持的流程：ChatGPT 修改并提交仓库 → 本工具发起 CI → SideStore 或 TestFlight 安装。
 
 - 普通对话：复制控制台的开发指令，交给拥有仓库写入能力的 ChatGPT/Codex 会话。
-- API 集成：将 HTTPS 主机上的 /api/openapi.json 导入支持 Actions 的自定义 GPT，配置 Bearer API Key；具体账户和客户端是否支持该集成需自行确认。
+- API 集成：将 HTTPS 主机上的 /api/openapi.json 接入支持该接口的现有代理，使用 Bearer API Key；自定义 GPT / Actions 当前可用性与迁移安排因账号或工作区而异，不能要求所有用户新建 GPT。
 - API 只构建已经提交的源码，不内置 LLM，不承诺普通 ChatGPT 对话会自动调用它。
 
 见 [CHATGPT.md](CHATGPT.md)。

@@ -1,0 +1,100 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pocket Build",
+    "version": "0.1.0",
+    "description": "Build already committed source. Does not generate source or install applications."
+  },
+  "servers": [
+    {
+      "url": "https://YOUR-HTTPS-HOST.example"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "paths": {
+    "/api/config": {
+      "get": {
+        "operationId": "getBuildConfiguration",
+        "responses": {
+          "200": {
+            "description": "Allowed repositories and branch"
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "getBuildStatus",
+        "parameters": [
+          {
+            "name": "repository",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actual GitHub run state"
+          }
+        }
+      }
+    },
+    "/api/build": {
+      "post": {
+        "operationId": "requestIOSBuild",
+        "x-openai-isConsequential": true,
+        "description": "Starts a potentially billable macOS build of existing source. Confirm repository and mode with user.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "repository",
+                  "mode"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "repository": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "sidestore",
+                      "testflight"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Dispatch accepted, not completed"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        }
+      }
+    }
+  }
+}

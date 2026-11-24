@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+dist/
+build/
+node_modules/
+*.ipa
+*.p12
+*.p8
+*.mobileprovision
+*.mobiledevicepairing
+*.xcodeproj/
+*.xcworkspace/
+.DS_Store

@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  node:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test test/*.test.mjs
+      - run: node prepare.mjs
+      - run: node --check app.mjs
+      - run: node --check server.mjs
+      - run: node --check sw.js
+  native:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: brew install xcodegen
+      - run: node prepare.mjs
+      - run: xcodegen generate --spec native/project.yml
+      - name: Compile iOS simulator without signing
+        run: >-
+          xcodebuild -project native/PocketBuild.xcodeproj -scheme PocketBuild
+          -sdk iphonesimulator -configuration Debug -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/simulator CODE_SIGNING_ALLOWED=NO build
