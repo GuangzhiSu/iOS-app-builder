@@ -31,7 +31,7 @@ test('dispatch passes only configured ref and rate limits repeated paid work',as
   const body=JSON.stringify({repository:'a/b',mode:'testflight',ref:'attacker-branch'});
   const first=await call('/api/build',{method:'POST',body});assert.equal(first.status,202);
   assert.equal((await first.json()).accepted,true);
-  assert.deepEqual(JSON.parse(calls[0].options.body),{ref:'main',inputs:{distribution:'testflight'}});
+  const payload=JSON.parse(calls[0].options.body);assert.equal(payload.ref,'main');assert.equal(payload.inputs.distribution,'testflight');assert.match(payload.inputs.request_id,/^pb-[a-f0-9-]+$/);
   assert.equal((await call('/api/build',{method:'POST',body})).status,429);
   assert.equal(calls.length,1);
 });
@@ -63,3 +63,4 @@ test('real HTTP transport smoke test in CI',{skip:!process.env.CI},async t=>{
   const r=await fetch('http://127.0.0.1:'+server.address().port+'/api/config',{headers:{Authorization:'Bearer '+key}});
   assert.equal(r.status,200);assert.deepEqual((await r.json()).repositories,['a/b']);
 });
+

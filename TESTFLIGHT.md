@@ -26,7 +26,9 @@ PowerShell 编码方法（在你自己的终端执行，不要把输出提交仓
 
 设置仓库变量 BUNDLE_ID 为自己的 Bundle ID，需与 profile 及 App Store Connect 记录一致。默认 com.allen.pocketbuild 只是示例。
 
-Actions → iOS build 选择 testflight 运行。脚本验证 profile 类型、Bundle ID 和有效期，临时 keychain 签名、导出并通过 Apple altool 上传，最后清理签名材料。不将证书或已签名 IPA 发布到公开 Release。
+网页或原生 App 连接 GitHub 后选择 TestFlight，或让已连接 GitHub 的 ChatGPT 提交 mode=testflight 的 .pocketbuild/request.json。也可在 Actions → iOS build 手动选择 testflight。
+
+编译前先运行签名配置检查；缺少字段会在工作流 Summary 列出名称并停止，不输出字段值。该检查只证明配置存在与格式合理，不证明会员或证书有效。脚本验证 profile 类型、Bundle ID 和有效期，临时 keychain 签名、导出并通过 Apple altool 上传，最后清理签名材料。不将证书或已签名 IPA 发布到公开 Release。
 
 上传后等待 Apple 处理，再完成测试/出口合规信息、测试组分配和适用的 beta review。内部与外部测试要求不同，外部测试不能假定自动通过。TestFlight 可以开启自动更新，但不能保证某时刻一定安装，也不能略过首次接受邀请。
 
@@ -39,3 +41,4 @@ ios-build.yml 包含每两个月一次的计划任务。**默认跳过**；明�
 ## 验证范围
 
 无签名 simulator 编译由 CI 验证。签名上传需要真实凭据，无法在没有你的会员材料时验证；unsigned 构建通过不等于 TestFlight 上传通过。
+

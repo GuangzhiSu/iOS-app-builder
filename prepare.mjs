@@ -20,10 +20,11 @@ function icon(size){
 }
 const dist=resolve(root,'dist'),assets=resolve(root,'native/Assets.xcassets'),appicon=resolve(assets,'AppIcon.appiconset');
 await mkdir(dist,{recursive:true});await mkdir(appicon,{recursive:true});
-for(const name of ['index.html','style.css','app.mjs','core.mjs','sw.js','manifest.webmanifest','icon.svg'])await copyFile(resolve(root,name),resolve(dist,name));
+for(const name of ['index.html','style.css','app.mjs','core.mjs','github.mjs','refresh.mjs','sw.js','manifest.webmanifest','icon.svg'])await copyFile(resolve(root,name),resolve(dist,name));
 for(const [size,name] of [[192,'icon-192.png'],[512,'icon-512.png'],[180,'apple-touch-icon.png']])await writeFile(resolve(dist,name),icon(size));
 await writeFile(resolve(appicon,'AppIcon.png'),icon(1024));
 await writeFile(resolve(appicon,'Contents.json'),JSON.stringify({images:[{filename:'AppIcon.png',idiom:'universal',platform:'ios',size:'1024x1024'}],info:{author:'xcode',version:1}},null,2));
 await writeFile(resolve(assets,'Contents.json'),JSON.stringify({info:{author:'xcode',version:1}}));
 await writeFile(resolve(dist,'.nojekyll'),'');
 console.log('Static PWA and native app icons generated.');
+

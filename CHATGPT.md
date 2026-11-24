@@ -1,30 +1,43 @@
-# 从手机 ChatGPT 发起开发和交付
+# 手机端 ChatGPT → 云端构建 → iPhone
 
-最通用的方式是使用已经具有 GitHub 仓库编辑权限的开发会话。网页里描述需求并复制开发指令，交给该会话修改和提交代码；然后从本控制台或 GitHub Actions 发起构建。
+本版无需额外后端或自定义 GPT。只要当前 ChatGPT/Codex 会话有此仓库的 GitHub 写权限，就可提交标准构建请求。网页的“复制仅构建请求”会生成带唯一编号和时间的指令。
 
-## 支持 HTTPS API 的代理
+## 已有代码，直接构建
 
-后端提供：
+让代理读取并创建/更新 main 分支的 `.pocketbuild/request.json`：
 
-- GET /api/config：可用仓库和固定构建分支。
-- GET /api/status?repository=owner/repo：真实 GitHub 构建状态。
-- POST /api/build，JSON 为 {"repository":"owner/repo","mode":"sidestore"} 或 testflight。
-- GET /api/openapi.json：OpenAPI 3.1 定义，配置 PUBLIC_URL 后返回真实服务器地址。
+```json
+{"id":"pb-REPLACE-WITH-UNIQUE-ID","mode":"sidestore","createdAt":"CURRENT-ISO-UTC-TIME"}
+```
 
-API Key 是你的 Pocket Build 控制密钥，不是 OpenAI API Key。调用使用 Authorization: Bearer。GitHub Token 放在后端环境变量，不能放进网页、指令或仓库。
+字段只能是 id、mode、createdAt。模式为 sidestore 或 testflight；时间应为现在，超过 24 小时的请求会被拒绝。提交信息应包含 id。不要修改无关源码来人为触发构建。
 
-202 返回 accepted 只表示 GitHub 接受了 workflow dispatch，不含可靠 run ID，也不代表构建、上传、签名或安装完成。之后查询 status，并核对时间、分支和 commit；并行构建时不要把别人的成功记录当作本次结果。
+提交后 `ios-build.yml` 自动启动。plan job 验证 JSON 并确定签名路线，build job 编译。按提交 SHA 匹配本次运行，不能把上一条成功构建当作当前结果。
 
-## 兼容 Actions 的现有集成
+构建成功后返回真实 Release 与以下稳定源地址：
 
-若你的账号或现有 GPT 仍有 Actions 配置界面，可导入上述 schema，设定 Bearer API Key，测试只读操作后再测试 build。不要分享持有此控制密钥的 GPT 给不应具有构建权限的人。
+https://github.com/GuangzhiSu/iOS-app-builder/releases/latest/download/sidestore-source.json
 
-当前 OpenAI 的 GPT 新建限制及向插件迁移的安排因账号/工作区而异。此步骤不是所有用户都可用的前提；不要求新建 GPT，也没有为你自动创建或安装插件。
+在手机 SideStore 添加一次该源后，可发现后续新版。发现新版、安装新版和刷新签名是不同动作。
 
-参考：[OpenAI 当前 GPT 可用性](https://help.openai.com/en/articles/8554407-gpts-in-chatgpt)、[Actions 原理](https://developers.openai.com/api/docs/actions/introduction)。
+## 需要先开发应用
 
-## 给代理的操作约束
+让有仓库权限的会话修改 native/ 或网页源码并提交。原生代码修改自动启动 SideStore 构建；网页代码修改自动部署 PWA。不要在已经自动触发后立即重复提交构建请求，除非用户要求另一种路线。
 
-只构建已提交的源码。先确认仓库与模式；构建可能消耗 macOS runner 额度。不要承诺免费签名永久有效，不要索取 Apple 密码或 pairing file。TestFlight 没有配置签名材料时应返回配置需求，不能改成公开发布证书。
+## 网页或原生 App 直接构建
 
-此版本不包含从自然语言自主生成任意应用的模型服务、仓库创建服务或多用户 OAuth。要扩展为开放平台，需要独立用户认证、每用户 GitHub App 授权、队列、审计与隔离的构建资源；不能把单用户共享 API Key 直接用于多租户服务。
+在 GitHub 创建 fine-grained token，只授权目标仓库：Actions 读写，Contents 只读。在应用的连接设置中输入，不要发送到聊天。
+
+网页只将令牌留在当前页面内存，且只发往 api.github.com；关闭或刷新后需重新连接。原生 App 可把令牌存入本机 Keychain。两者都无需 Windows 常开或另建服务器。
+
+访问令牌的首次授权不能由普通网页凭空获得。拥有仓库写工具的 ChatGPT 走上述请求文件路线，不需要用户另交令牌。
+
+## 可选自建 API
+
+原有 Node API 继续支持，适合已经有自己后端的用户：GET /api/config、GET /api/status、POST /api/build。OpenAPI 为 /api/openapi.json。服务器自行为请求生成编号，并返回 GitHub run ID（服务版本支持时）。202/accepted 不是构建或安装成功。
+
+OpenAI 的自定义 GPT、Actions 与插件可用性因账户和工作区而异，因此本项目的必要流程不依赖新建 GPT。普通 ChatGPT 对话只有在具备并授权仓库工具时才能修改请求文件。
+
+## 无法代替用户的手机步骤
+
+首次 iLoader 配对、信任开发者、VPN 权限、Apple 登录、创建个人自动化、核对真实证书到期时间，需要用户在自己的 iPhone 操作。TestFlight 还需要用户自己的付费会员和签名材料。不得把密码、配对文件、证书私钥粘贴到聊天或提交仓库。

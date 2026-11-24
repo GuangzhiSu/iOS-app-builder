@@ -2,7 +2,7 @@ name: Publish PWA
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'app.mjs', 'core.mjs', 'style.css', 'sw.js', 'icon.svg', 'manifest.webmanifest', 'prepare.mjs', '.github/workflows/pages.yml']
+    paths: ['index.html', 'app.mjs', 'core.mjs', 'github.mjs', 'refresh.mjs', 'style.css', 'sw.js', 'icon.svg', 'manifest.webmanifest', 'prepare.mjs', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -36,3 +36,4 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deploy
+

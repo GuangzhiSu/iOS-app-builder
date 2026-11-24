@@ -35,5 +35,6 @@ export function sourceFromRelease(repo,release) {
   return {name:'Pocket Build · '+repo,identifier:'pocketbuild.'+repo.replace(/[^A-Za-z0-9]/g,'.'),apps:[{name:'Pocket Build',bundleIdentifier:m.bundleIdentifier,developerName:repo.split('/')[0],localizedDescription:'Unsigned cloud build. Sign with SideStore on your device.',iconURL:'https://github.com/'+repo.split('/')[0]+'.png',versions:[{version:m.version,buildVersion:String(m.buildVersion??'1'),date:release.published_at,localizedDescription:'Unsigned IPA. Verify this release, then sign with SideStore.',downloadURL:u.href,size:asset.size}],appPermissions:{entitlements:[],privacy:{}}}],news:[]};
 }
 export function handoffPrompt({idea,route,repository}) {
-  return '请在 https://github.com/'+repositoryName(repository)+' 实现以下需求：\n\n'+String(idea).trim().slice(0,6000)+'\n\n交付路线：'+route+'。\n先检查仓库与 AGENTS.md。PWA 请保留 manifest 和离线策略；原生请修改 native/ SwiftUI，并同步构建配置。\n保留 ios-build.yml 的 workflow_dispatch 接口和 Release 元数据。不要提交 Apple 密码、设备配对文件或签名材料。\n运行适当检查，在授权范围内提交源码。提交后再发起云端构建；构建成功不等于手机安装成功。\n免费签名需要 SideStore 在手机签名和刷新；不要承诺永久签名或保证后台运行。\n';
+  return '请在 https://github.com/'+repositoryName(repository)+' 实现以下需求：\n\n'+String(idea).trim().slice(0,6000)+'\n\n交付路线：'+route+'。\n先检查仓库与 AGENTS.md。PWA 请保留 manifest 和离线策略；原生请修改 native/ SwiftUI，并同步构建配置。\n保留 ios-build.yml 的 workflow_dispatch 接口和 Release 元数据。不要提交 Apple 密码、设备配对文件或签名材料。\n运行适当检查，在授权范围内提交源码。原生源码提交会自动构建，不要重复发起；如果只是构建现有代码，按 AGENTS.md 更新 .pocketbuild/request.json，使用唯一 id、所选 mode 和当前 ISO 时间。构建成功不等于手机安装成功。\n免费签名需要 SideStore 在手机签名和刷新；不要承诺永久签名或保证后台运行。\n';
 }
+
