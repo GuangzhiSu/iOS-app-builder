@@ -9,8 +9,8 @@
 - 可添加到 iPhone 主屏幕的 PWA 控制台，适配手机和桌面。
 - 选择交付路线、保存项目、读取真实 GitHub 构建记录。
 - 配置 Node 后端后，从网页或 ChatGPT Actions 发起云端 iOS 构建。
-- GitHub macOS runner 编译 SwiftUI 示例；免费路线发布 unsigned IPA，由 SideStore 在手机签名。
-- 提供付费 TestFlight 签名和上传流水线，默认不会自动运行或定时消耗 CI。
+- 原生源码提交到 main 后，GitHub macOS runner 自动编译 SwiftUI 示例并发布 unsigned IPA，由 SideStore 在手机签名。
+- 提供付费 TestFlight 签名和上传流水线，TestFlight 定时任务默认关闭。原生源码提交会自动运行免费路线的 macOS 构建，消耗 GitHub runner 配额。
 - 从实际 Release 元数据生成 SideStore 源；手动续签记录、日历检查提醒、快捷指令配置说明。
 - 生成手机端 ChatGPT 开发指令。**指令生成不等于代码生成或提交。**
 
@@ -64,7 +64,7 @@ node --env-file=.env server.mjs
 4. iPhone 连 Wi-Fi，开启 LocalDevVPN，下载 Release 中的 IPA，在 SideStore 导入签名。
 5. 后续新版本仍需安装新版 IPA；“刷新签名”不会更新源码。
 
-每个 Release 带版本、Bundle ID 和实际文件大小元数据；控制台只为元数据完整的构建生成源。导出 JSON 后需托管为 HTTPS JSON 才能在 SideStore 添加源；也可直接导入 IPA。
+每个 Release 带版本、Bundle ID 和实际文件大小元数据；控制台只为元数据完整的构建生成源。工作流同时发布 sidestore-source.json，稳定地址为 https://github.com/OWNER/REPO/releases/latest/download/sidestore-source.json；手机在 SideStore 添加一次源，之后可发现新版本。控制台提供复制地址与导出 JSON；自定义导出的 JSON 仍需自行 HTTPS 托管。私有仓库的下载需要额外认证，不能直接当公开源使用。
 
 ### TestFlight 配置
 

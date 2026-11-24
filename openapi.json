@@ -29,7 +29,15 @@
         "operationId": "getBuildConfiguration",
         "responses": {
           "200": {
-            "description": "Allowed repositories and branch"
+            "description": "Allowed repositories and branch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
           }
         }
       }
@@ -49,7 +57,15 @@
         ],
         "responses": {
           "200": {
-            "description": "Actual GitHub run state"
+            "description": "Actual GitHub run state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
           }
         }
       }
@@ -88,10 +104,26 @@
         },
         "responses": {
           "202": {
-            "description": "Dispatch accepted, not completed"
+            "description": "Dispatch accepted, not completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
           },
           "429": {
-            "description": "Rate limited"
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
           }
         }
       }

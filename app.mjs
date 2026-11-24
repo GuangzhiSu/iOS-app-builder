@@ -7,7 +7,7 @@ const descriptions={pwa:'Safari 打开 HTTPS 网站 → 分享 → 添加到主�
 function toast(text){$('#toast').textContent=text;$('#toast').hidden=false;clearTimeout(timer);timer=setTimeout(()=>$('#toast').hidden=true,6500);}
 function save(){try{localStorage.setItem('pocket-build',JSON.stringify(state));}catch{toast('浏览器不允许持久保存；本次设置仅对当前页面有效');}}
 function webURL(value){if(!value)return '';const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password)throw new Error('Web App 需要不含凭据的 HTTPS 地址');return u.href;}
-function render(){const base='https://github.com/'+state.repository;$('#repository').value=state.repository;$('#web-url').value=state.webURL;$('#repo-link').href=base;$('#actions-link').href=base+'/actions';$('#release-link').href=base+'/releases';document.querySelectorAll('[data-route]').forEach(b=>{const yes=b.dataset.route===state.route;b.classList.toggle('selected',yes);b.setAttribute('aria-pressed',String(yes));});$('#route-detail').textContent=descriptions[state.route];$('#build-description').textContent=state.route==='pwa'?'发布网站即更新应用，无需生成 IPA。':state.route==='sidestore'?'生成未签名 IPA 后，由手机的 SideStore 签名安装。':'先配置证书、Provisioning Profile 和 App Store Connect API Key。';$('#build').textContent=state.route==='pwa'?'打开 Web App / 发布说明':connected?'发起云端构建':'在 GitHub 发起构建';$('#source').hidden=state.route!=='sidestore';renderExpiry();}
+function render(){const base='https://github.com/'+state.repository;$('#repository').value=state.repository;$('#web-url').value=state.webURL;$('#repo-link').href=base;$('#actions-link').href=base+'/actions';$('#release-link').href=base+'/releases';document.querySelectorAll('[data-route]').forEach(b=>{const yes=b.dataset.route===state.route;b.classList.toggle('selected',yes);b.setAttribute('aria-pressed',String(yes));});$('#route-detail').textContent=descriptions[state.route];$('#build-description').textContent=state.route==='pwa'?'发布网站即更新应用，无需生成 IPA。':state.route==='sidestore'?'生成未签名 IPA 后，由手机的 SideStore 签名安装。':'先配置证书、Provisioning Profile 和 App Store Connect API Key。';$('#build').textContent=state.route==='pwa'?'打开 Web App / 发布说明':connected?'发起云端构建':'在 GitHub 发起构建';$('#source').hidden=state.route!=='sidestore';$('#copy-source').hidden=state.route!=='sidestore';renderExpiry();}
 function renderExpiry(){const e=expiry(state.lastRefresh);$('#days').replaceChildren(document.createTextNode(e?String(e.remaining):'—'));const small=document.createElement('small');small.textContent='天';$('#days').append(small);$('#expiry-caption').textContent=e?(e.expired?'估计已到期，请立即核对':'距离估计到期时间'):'还没有续签记录';$('#expiry-detail').textContent=e?'估计到期：'+new Date(e.expires).toLocaleString()+'。以 SideStore 显示为准。':'在 SideStore 确认成功后再记录。';}
 function guide(title,texts){$('#guide-title').textContent=title;$('#guide-content').replaceChildren();for(const text of texts){const p=document.createElement('p');p.textContent=text;$('#guide-content').append(p);}$('#guide').showModal();}
 function download(name,text,type='text/plain'){const u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),10000);}
@@ -31,3 +31,11 @@ $('#close').addEventListener('click',()=>$('#guide').close());
 $('#refresh-date').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
 render();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+$('#copy-source').addEventListener('click',e=>busy(e.currentTarget,async()=>{
+  const release=await gh('/releases/latest');
+  if(!release.assets?.some(a=>a.name==='sidestore-source.json'))throw new Error('尚未发布订阅源；先运行一次最新的 sidestore 构建工作流');
+  const url='https://github.com/'+state.repository+'/releases/latest/download/sidestore-source.json';
+  try{await navigator.clipboard.writeText(url);toast('已复制稳定订阅地址，在 SideStore 添加源时粘贴。');}
+  catch{download('sidestore-source-url.txt',url);toast('已导出订阅源地址');}
+}));
